@@ -14,7 +14,7 @@ articles = load_articles(TESTING_FILE_NAME)
 yandex_client = Yandex()
 word_cache = WordCache(yandex_client)
 word_cache.load(CACHE_DUMP_FILE)
-article_features = load_features()
+article_features = load_features(features_file_name=TESTING_SET_FEATURES_DUMP_FILE_NAME)
 parsed_features = [article_feature.article_id for article_feature in article_features]
 
 for index, article in enumerate(articles):
