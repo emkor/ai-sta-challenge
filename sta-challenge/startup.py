@@ -34,9 +34,9 @@ for index, article in enumerate(articles):
         log("Ended parsing #{} article features: {}\narticle analyzed in: {}\n\n".format(index, article_feature,
                                                                                          seconds_since(start_time)))
         word_cache.dump(CACHE_DUMP_FILE)
-        store_features(article_features=article_features, features_file_name=TESTING_SET_FEATURES_DUMP_FILE_NAME)
         parsed_features.append(article_feature.article_id)
         article_features.append(article_feature)
+        store_features(article_features=article_features, features_file_name=TESTING_SET_FEATURES_DUMP_FILE_NAME)
     else:
         log("Omitting parsing article #{}: {} - already parsed!".format(index, article))
 
