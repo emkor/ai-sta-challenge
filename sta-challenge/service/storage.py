@@ -1,10 +1,11 @@
+import csv
 import json
 from json import JSONEncoder
 
 from datetime import datetime
 
 from model.ArticleFeatures import ArticleFeatures
-from utils.const import FEATURES_DUMP_FILE_NAME
+from utils.const import FEATURES_DUMP_FILE_NAME, OUTPUT_CSV_FILE
 from utils.log_utils import log, seconds_since
 
 
@@ -14,6 +15,17 @@ class ComplexObjectSerializer(JSONEncoder):
             return list(o)
         else:
             return o.__dict__
+
+
+def store_as_csv(testing_article_indexes, testing_article_categories, output_file_name=OUTPUT_CSV_FILE):
+    start_time = datetime.utcnow()
+    log("Storing prediction results as csv in: {}".format(output_file_name))
+    with open(output_file_name, 'wb') as csvfile:
+        spamwriter = csv.writer(csvfile, delimiter=';', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        spamwriter.writerow(['id', 'specialCoverage'])
+        for index, category in zip(testing_article_indexes, testing_article_categories):
+            spamwriter.writerow([index, category])
+    log("Done storing prediction csv in {}s.".format(seconds_since(start_time)))
 
 
 def store_features(article_features, features_file_name=FEATURES_DUMP_FILE_NAME):

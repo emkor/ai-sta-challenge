@@ -19,7 +19,7 @@ class ArticleFeatures(object):
         normalized_params = {}
         for family_index in xrange(0, word_family_length):
             normalized_params.update(
-                {family_index: self.word_family_index_to_occurences.get(family_index) or 0 / total_occurences})
+                {family_index: (self.word_family_index_to_occurences.get(family_index) or 0) / total_occurences})
 
         return normalized_params
 
