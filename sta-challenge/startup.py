@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from service.storage import store_features, load_features
-from utils.const import TRAINING_FILE_NAME, CACHE_DUMP_FILE
+from utils.const import TRAINING_FILE_NAME, CACHE_DUMP_FILE, TESTING_SET_FEATURES_DUMP_FILE_NAME, TESTING_FILE_NAME
 from utils.log_utils import log, crop_list_to_max, seconds_since
 from service.yandex import Yandex
 from model.ArticleFeatures import ArticleFeatures
@@ -10,7 +10,7 @@ from service.article_loader import load_articles
 from service.text_processor import process_article_to_words
 from utils.text_functions import strip_tags, filter_words_shorter_than
 
-articles = load_articles(TRAINING_FILE_NAME)
+articles = load_articles(TESTING_FILE_NAME)
 yandex_client = Yandex()
 word_cache = WordCache(yandex_client)
 word_cache.load(CACHE_DUMP_FILE)
@@ -19,7 +19,7 @@ parsed_features = [article_feature.article_id for article_feature in article_fea
 
 for index, article in enumerate(articles):
     start_time = datetime.utcnow()
-    log("Started parsing article #{}: {}...".format(index, article))
+    log("Started parsing article #{}/{}: {}...".format(index, len(articles), article))
     if article.id not in parsed_features:
         article_feature = ArticleFeatures(article.id)
         linked_text_to_translate = strip_tags(article.headline + " " + article.text)
@@ -34,7 +34,7 @@ for index, article in enumerate(articles):
         log("Ended parsing #{} article features: {}\narticle analyzed in: {}\n\n".format(index, article_feature,
                                                                                          seconds_since(start_time)))
         word_cache.dump(CACHE_DUMP_FILE)
-        store_features(article_features=article_features)
+        store_features(article_features=article_features, features_file_name=TESTING_SET_FEATURES_DUMP_FILE_NAME)
         parsed_features.append(article_feature.article_id)
         article_features.append(article_feature)
     else:
