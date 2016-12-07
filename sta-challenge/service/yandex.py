@@ -5,11 +5,11 @@ from model.word_family import WordFamily
 from utils.const import TARGET_ENCODING
 from utils.log_utils import log
 
-YANDEX_TRANSLATE_KEY = 'trnsl.1.1.20161207T101750Z.e80f19d9287653b1.aa511cd65310a3af08206a1a458de0b263fc7a92'
+YANDEX_TRANSLATE_KEY = 'trnsl.1.1.20161207T134248Z.e141b0a04304d97c.75391bf325e6bbf18dd1493c15cd7513daf167c7'
 YANDEX_TRANSLATE_URL = 'https://translate.yandex.net/api/v1.5/tr.json/translate'
 
+YANDEX_DICTIONARY_KEY = 'dict.1.1.20161207T134300Z.9eb99cca8474e3f5.ca0c7220aa5a7fe5b457278aeb0791f85647f82d'
 YANDEX_DICTIONARY_URL = 'https://dictionary.yandex.net/api/v1/dicservice.json/lookup'
-YANDEX_DICTIONARY_KEY = 'dict.1.1.20161207T101647Z.16aa99e396c3c044.7ece61c1d32e0aec5e129b52870913a9d0c9b709'
 
 TO_ENGLISH = 'sl-en'
 TO_SLOVENIAN = 'en-sl'

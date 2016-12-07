@@ -26,8 +26,6 @@ def article_to_model(article_dict):
                                 headline=article_headline, keywords=article_keywords,
                                 lead=article_lead, text=article_text)
         special_coverage_id = article_dict.get("specialCoverage")
-        if len(special_coverage_id) > 1:
-            log("{} has more than one coverage id: {}".format(article_model, special_coverage_id))
         if special_coverage_id:
             return TrainingArticle(specialCoverage=int(special_coverage_id[0]), **article_model.__dict__)
         else:

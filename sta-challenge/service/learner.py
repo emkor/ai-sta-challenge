@@ -14,16 +14,21 @@ from utils.learner_functions import load_article_id_to_normalized_features_file,
 
 article_id_to_normalized_features = load_article_id_to_normalized_features_file(ARTICLE_ID_TO_NORMALIZED_FEATURES_FILE)
 article_id_to_category = load_article_id_to_cateogory_file(TRAINING_ARTICLE_ID_TO_CATEGORY)
-article_id_to_category = {article_id: category for article_id, category in article_id_to_category.iteritems() if article_id in article_id_to_normalized_features.keys()}
+article_id_to_category = {article_id: category for article_id, category in article_id_to_category.iteritems() if
+                          article_id in article_id_to_normalized_features.keys()}
 classifier = MLPClassifier()
-list_of_features_of_samples = article_id_to_normalized_features.values()
-list_of_categories = article_id_to_category.values()
+
+list_of_features_of_samples = []
+list_of_categories = []
+for article_id, features in article_id_to_normalized_features.iteritems():
+    list_of_features_of_samples.append(features)
+    list_of_categories.append(article_id_to_category.get(article_id))
+
 classifier.fit(X=list_of_features_of_samples, y=list_of_categories)
 ########################
 testing_article_indexes = []
 testing_data_list_of_features_of_samples = [[]]
 
 testing_predicted_classes = classifier.predict(X=testing_data_list_of_features_of_samples)
-
 
 pass
