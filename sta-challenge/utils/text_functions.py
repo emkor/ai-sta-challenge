@@ -15,7 +15,7 @@ def normalize(text):
     :type: unicode
     :rtype: unicode
     """
-    return _strip_punctuation(text).lower().replace(u"<b>", u"").replace(u"<pre>", u"")
+    return _strip_punctuation(text).lower()
 
 def strip_tags(text):
     """
@@ -30,7 +30,10 @@ def filter_words_shorter_than(words, length=4):
     :type length: int
     :rtype: list[unicode]
     """
-    return [word.strip() for word in words if len(word.strip()) >= length]
+    if isinstance(words, list):
+        return [word.strip() for word in words if len(word.strip()) >= length]
+    else:
+        return [word.strip() for word in words.split() if len(word.strip()) >= length]
 
 
 def filter_nones(values):

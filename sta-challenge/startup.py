@@ -8,7 +8,7 @@ from model.ArticleFeatures import ArticleFeatures
 from model.word_cache import WordCache
 from service.article_loader import load_articles
 from service.text_processor import process_article_to_words
-from utils.text_functions import strip_tags
+from utils.text_functions import strip_tags, filter_words_shorter_than
 
 articles = load_articles(TRAINING_FILE_NAME)
 yandex_client = Yandex()
@@ -22,7 +22,9 @@ for index, article in enumerate(articles):
     log("Started parsing article #{}: {}...".format(index, article))
     if article.id not in parsed_features:
         article_feature = ArticleFeatures(article.id)
-        all_words = process_article_to_words(strip_tags(article.headline + " " + article.text))
+        linked_text_to_translate = strip_tags(article.headline + " " + article.text)
+        linked_text_to_translate = filter_words_shorter_than(linked_text_to_translate)
+        all_words = process_article_to_words(" ".join(linked_text_to_translate))
         log("Article #{}: {}\nall words ({}): {}...".format(index, article, len(all_words),
                                                             crop_list_to_max(all_words)))
         for word in all_words:
