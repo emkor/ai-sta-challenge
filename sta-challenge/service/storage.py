@@ -60,7 +60,7 @@ def load_features(features_file_name=FEATURES_DUMP_FILE_NAME):
                     word_family_index_to_occurences.update({int(family_index): int(occurences)})
             output_features.append(ArticleFeatures(article_id=article_id,
                                                    word_family_index_to_occurences=word_family_index_to_occurences))
-        log("Done import of {} article's features in {}s.".format(output_features, seconds_since(start_time)))
+        log("Done import of {} article's features in {}s.".format(len(output_features), seconds_since(start_time)))
         return output_features
     except Exception as e:
         log("Could not import features from JSON file: {}. Reason: {}".format(features_file_name, e))

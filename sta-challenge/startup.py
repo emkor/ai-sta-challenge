@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from service.storage import store_features, load_features
-from utils.const import TRAINING_FILE_NAME, CACHE_DUMP_FILE, TESTING_SET_FEATURES_DUMP_FILE_NAME, TESTING_FILE_NAME
+from utils.const import TRAINING_ARTICLES_FILE_NAME, CACHE_DUMP_FILE, TESTING_SET_FEATURES_DUMP_FILE_NAME, TESTING_ARTICLES_FILE_NAME
 from utils.log_utils import log, crop_list_to_max, seconds_since
 from service.yandex import Yandex
 from model.ArticleFeatures import ArticleFeatures
@@ -10,7 +10,7 @@ from service.article_loader import load_articles
 from service.text_processor import process_article_to_words
 from utils.text_functions import strip_tags, filter_words_shorter_than
 
-articles = load_articles(TESTING_FILE_NAME)
+articles = load_articles(TESTING_ARTICLES_FILE_NAME)
 yandex_client = Yandex()
 word_cache = WordCache(yandex_client)
 word_cache.load(CACHE_DUMP_FILE)

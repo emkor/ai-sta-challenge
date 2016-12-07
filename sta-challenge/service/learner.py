@@ -1,34 +1,62 @@
 from sklearn.neural_network import MLPClassifier
-
-from model.word_cache import WordCache
-from service.yandex import Yandex
-from utils.const import TEMPORARY_CACHE_FILE, ARTICLE_ID_TO_NORMALIZED_FEATURES_FILE, TRAINING_ARTICLE_ID_TO_CATEGORY
-from utils.learner_functions import load_article_id_to_normalized_features_file, load_article_id_to_cateogory_file, \
+from service.article_loader import load_articles
+from service.storage import store_as_csv
+from utils.const import ARTICLE_ID_TO_NORMALIZED_FEATURES_FILE, TRAINING_ARTICLE_ID_TO_CATEGORY, \
+    TESTING_ARTICLE_ID_TO_NORMALIZED_FEATURES_FILE, FEATURES_DUMP_FILE_NAME, TEST_FEATURES_DUMP_FILE_NAME, \
+    CACHE_DUMP_FILE, TESTING_ARTICLES_FILE_NAME, OUTPUT_CSV_FILE
+from utils.learn_utils import get_word_family_size
+from utils.learner_functions import load_article_id_to_cateogory_file, \
     build_article_id_to_normalized_features_file
+from utils.log_utils import log
 
-# loaded_cache = WordCache(Yandex())
-# loaded_cache.load(export_file_name=TEMPORARY_CACHE_FILE)
-# family_length = loaded_cache.get_next_index()
+log("Started learning process")
 
-# build_article_id_to_normalized_features_file(family_length)
+log("Loading words cache...")
+family_length = get_word_family_size(CACHE_DUMP_FILE)
 
-article_id_to_normalized_features = load_article_id_to_normalized_features_file(ARTICLE_ID_TO_NORMALIZED_FEATURES_FILE)
-article_id_to_category = load_article_id_to_cateogory_file(TRAINING_ARTICLE_ID_TO_CATEGORY)
-article_id_to_category = {article_id: category for article_id, category in article_id_to_category.iteritems() if
-                          article_id in article_id_to_normalized_features.keys()}
+log("Building normalized features for training articles...")
+training_article_id_to_norm_features = build_article_id_to_normalized_features_file(family_length,
+                                                                                    input_file_name=FEATURES_DUMP_FILE_NAME,
+                                                                                    output_file_name=ARTICLE_ID_TO_NORMALIZED_FEATURES_FILE)
+log("Loading training data mappings: article id to category...")
+training_article_id_to_category = load_article_id_to_cateogory_file(TRAINING_ARTICLE_ID_TO_CATEGORY)
+training_article_id_to_category = {article_id: category for article_id, category in
+                                   training_article_id_to_category.iteritems() if
+                                   article_id in training_article_id_to_norm_features.keys()}
+
+log("Building lists of training values for further learning...")
+training_features_list = []
+training_categories_list = []
+for article_features, features in training_article_id_to_norm_features.iteritems():
+    training_features_list.append(features)
+    training_categories_list.append(training_article_id_to_category.get(article_features))
+
+log("Learning...")
 classifier = MLPClassifier()
+classifier.fit(X=training_features_list, y=training_categories_list)
 
-list_of_features_of_samples = []
-list_of_categories = []
-for article_id, features in article_id_to_normalized_features.iteritems():
-    list_of_features_of_samples.append(features)
-    list_of_categories.append(article_id_to_category.get(article_id))
+log("Loading testing articles...")
+testing_articles = load_articles(TESTING_ARTICLES_FILE_NAME)
 
-classifier.fit(X=list_of_features_of_samples, y=list_of_categories)
-########################
-testing_article_indexes = []
-testing_data_list_of_features_of_samples = [[]]
+log("Building normalized features for testing articles...")
+testing_article_id_to_norm_features = build_article_id_to_normalized_features_file(family_length,
+                                                                                   input_file_name=TEST_FEATURES_DUMP_FILE_NAME,
+                                                                                   output_file_name=TESTING_ARTICLE_ID_TO_NORMALIZED_FEATURES_FILE)
+log("Building lists of testing values for prediction...")
+testing_article_ids = []
+testing_article_features = []
+for article in testing_articles:
+    article_features = testing_article_id_to_norm_features.get(article.id)
+    if article_features:
+        testing_article_features.append(article_features)
+        testing_article_ids.append(article.id)
+    else:
+        log("ERROR: Could not find features for article: {}".format(article))
 
-testing_predicted_classes = classifier.predict(X=testing_data_list_of_features_of_samples)
+log("Prediction...")
+testing_predicted_categories = classifier.predict(X=testing_article_features)
 
-pass
+log("Storing results as CSV...")
+store_as_csv(testing_article_ids, testing_predicted_categories, output_file_name=OUTPUT_CSV_FILE)
+
+log("Done!")

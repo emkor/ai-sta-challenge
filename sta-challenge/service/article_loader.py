@@ -14,17 +14,17 @@ def article_to_model(article_dict):
     """
     try:
         article_id = int(article_dict.get("id")[0])
-        article_categories = article_dict.get("categories")
+        # article_categories = article_dict.get("categories")
         article_headline = (article_dict.get("headline")[0]).encode(TARGET_ENCODING)
-        article_keywords = [keyword.encode(TARGET_ENCODING) for keyword in article_dict.get("keywords")]
-        article_lead = article_dict.get("lede")[0].encode(TARGET_ENCODING)
+        # article_keywords = [keyword.encode(TARGET_ENCODING) for keyword in article_dict.get("keywords")]
+        # article_lead = article_dict.get("lede")[0].encode(TARGET_ENCODING)
         if article_dict.get("text"):
             article_text = article_dict.get("text")[0].encode(TARGET_ENCODING)
         else:
             article_text = ''
-        article_model = Article(id=article_id, categories=article_categories,
-                                headline=article_headline, keywords=article_keywords,
-                                lead=article_lead, text=article_text)
+        article_model = Article(id=article_id, categories=[],
+                                headline=article_headline, keywords=[],
+                                lead=u'', text=article_text)
         special_coverage_id = article_dict.get("specialCoverage")
         if special_coverage_id:
             return TrainingArticle(specialCoverage=int(special_coverage_id[0]), **article_model.__dict__)
