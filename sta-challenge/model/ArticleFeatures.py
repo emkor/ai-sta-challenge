@@ -30,6 +30,18 @@ class ArticleFeatures(object):
         occurences = self.word_family_index_to_occurences.get(word_family_index) or 0
         self.word_family_index_to_occurences.update({word_family_index: occurences + 1})
 
+    def replace_word_family(self, old_word_family_index, new_word_family_index):
+        """
+        :type old_word_family_index: int
+        :type new_word_family_index: int
+        """
+        old_occurences = self.word_family_index_to_occurences.get(old_word_family_index) or 0
+        new_occurences = self.word_family_index_to_occurences.get(new_word_family_index) or 0
+        if old_occurences or new_occurences:
+            self.word_family_index_to_occurences.update({new_word_family_index: new_occurences + old_occurences})
+            if old_occurences:
+                self.word_family_index_to_occurences.pop(old_word_family_index)
+
     def __str__(self):
         return "{} for #{} word family to occurences: {}".format(self.__class__.__name__, self.article_id,
                                                                  crop_list_to_max(

@@ -7,6 +7,66 @@ from utils.log_utils import log, seconds_since
 from utils.text_functions import normalize
 
 
+def union(family_1, family_2):
+    """
+    :type family_1: model.word_family.WordFamily
+    :type family_2:  model.word_family.WordFamily
+    :rtype: model.word_family.WordFamily
+    """
+    return WordFamily(family_1.part_of_speech, list(family_1.synonyms) + list(family_2.synonyms))
+
+
+def similarity(family_1, family_2):
+    """
+    :type family_1: model.word_family.WordFamily
+    :type family_2:  model.word_family.WordFamily
+    :rtype: float
+    """
+    if family_1.part_of_speech == family_2.part_of_speech:
+        all_words = set(list(family_2.synonyms) + list(family_1.synonyms))
+        shared_words = family_2.synonyms.intersection(family_1.synonyms)
+        similarity_ratio = len(shared_words) / float(len(all_words))
+        return similarity_ratio
+    else:
+        return 0
+
+
+def merge_families(word_cache, family_to_stay, family_to_be_merged):
+    """
+    :type word_cache: model.word_cache.WordCache
+    :type family_to_stay: int
+    :type family_to_be_merged: int
+    :rtype: model.word_cache.WordCache
+    """
+    family1 = word_cache.index_to_family.get(family_to_stay)
+    family2 = word_cache.index_to_family.get(family_to_be_merged)
+    if family1 and family2:
+        new_family = union(family1, family2)
+        word_cache.index_to_family.update({family_to_stay: new_family})
+        word_cache.index_to_family.pop(family_to_be_merged)
+        for word in new_family.synonyms:
+            if word in word_cache.ignored_words:
+                word_cache.ignored_words.remove(word)
+            word_cache.word_to_family_index.update({word: family_to_stay})
+        return word_cache
+    return None
+
+
+def update_article_to_features(old_family_index, new_family_index, article_feature_list):
+    """
+    :type old_family_index: int
+    :type new_family_index: int
+    :type article_feature_list: list[model.ArticleFeatures.ArticleFeatures]
+    :rtype: list[model.ArticleFeatures.ArticleFeatures]
+    """
+    new_features = []
+    for feature in article_feature_list:
+        if old_family_index in feature.word_family_index_to_occurences.keys():
+            feature.replace_word_family(old_family_index, new_family_index)
+        new_features.append(feature)
+    return new_features
+
+
 class WordCache(object):
     def __init__(self, yandex_client):
         """
